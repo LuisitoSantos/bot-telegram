@@ -1,0 +1,6 @@
+com\mica_cadura\telegram_bot\application\dto\Cagon.class
+com\mica_cadura\telegram_bot\application\dto\MyComparatorAnual.class
+com\mica_cadura\telegram_bot\application\dto\MyComparatorMes.class
+com\mica_cadura\telegram_bot\application\TelegramBotApp.class
+com\mica_cadura\telegram_bot\application\dto\ListaDeCagones.class
+com\mica_cadura\telegram_bot\application\service\TelegramBot.class
