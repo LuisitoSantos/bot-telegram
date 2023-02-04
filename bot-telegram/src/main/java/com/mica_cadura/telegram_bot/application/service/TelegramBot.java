@@ -1,5 +1,7 @@
 package com.mica_cadura.telegram_bot.application.service;
 
+import java.awt.desktop.ScreenSleepEvent;
+import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -89,9 +91,6 @@ public class TelegramBot extends TelegramLongPollingBot {
 
 		int randomNum = (int) (Math.random() * randomValue);
 
-//		System.out.println("Hora " + horaDelMensaje);
-//		System.out.println("Random " + randomNum);
-		// System.out.println("Mes de partida: " + mesActual);
 //		int mesDelMensaje = 0;
 //		int anoDelMensaje = 0;
 //		if (contAux < 15) {
@@ -101,8 +100,6 @@ public class TelegramBot extends TelegramLongPollingBot {
 //			mesDelMensaje = 2;
 //			anoDelMensaje = 2024;
 //		}
-		// System.out.println("Mes del mensaje: " + mesDelMensaje);
-		
 
 		String message = update.getMessage().getText();
 
@@ -114,7 +111,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 		String userName = update.getMessage().getFrom().getUserName();
 		String userRealName = update.getMessage().getFrom().getFirstName();
 
-		// System.out.println(message);
+//		 System.out.println(message);
 
 		SendMessage messageToUsers = new SendMessage();
 		messageToUsers.setChatId(id);
@@ -132,9 +129,9 @@ public class TelegramBot extends TelegramLongPollingBot {
 				} else {
 
 					if (isAdmin(userName)) {
-						
-						if(message.startsWith("@")) {
-							
+
+						if (message.startsWith("@")) {
+
 							boolean match = false;
 
 							for (String user : listaUsuariosPermitidos) {
@@ -158,25 +155,25 @@ public class TelegramBot extends TelegramLongPollingBot {
 							messageToUsers.setText("¿Qué quieres hacer?" + "\n/habilitar_usuario" + "\n/agregar_cacas"
 									+ "\n/ver_usuarios_permitidos" + "\n/ver_estado_usuario" + "\n/exit");
 							executeMessage(messageToUsers);
-							
+
 						} else {
-							
+
 							messageToUsers.setText(message + " no es un usuario");
 							executeMessage(messageToUsers);
-							
+
 							messageToUsers.setText(admin + ", indica el '@usuario' para habilitarlo");
 							executeMessage(messageToUsers);
-							
+
 						}
 
 					} else {
-						
+
 						messageToUsers.setText("Deja administrar al usuario");
 						executeMessage(messageToUsers);
-						
+
 						messageToUsers.setText(admin + ", indica el '@usuario' para habilitarlo");
 						executeMessage(messageToUsers);
-						
+
 					}
 
 				}
@@ -189,38 +186,49 @@ public class TelegramBot extends TelegramLongPollingBot {
 					executeMessage(messageToUsers);
 					messageToUsers.setText("Ejemplo: @User 1 3 0");
 					executeMessage(messageToUsers);
-					
+
 				} else {
-					
-					if(isAdmin(userName)) {
-						
+
+					if (isAdmin(userName)) {
+
 						anadirCacas = false;
 						processMessage(message, id);
 						messageToUsers.setText("¿Qué quieres hacer?" + "\n/habilitar_usuario" + "\n/agregar_cacas"
 								+ "\n/ver_usuarios_permitidos" + "\n/ver_estado_usuario" + "\n/exit");
 						executeMessage(messageToUsers);
-						
+
 					} else {
-						
+
 						messageToUsers.setText("Deja administrar al usuario");
 						executeMessage(messageToUsers);
-						
-						messageToUsers.setText(admin + ", indica el '@usuario' y los valores a añadir: cacasMes, cacaAño, cagonDelMes (seguir la estructura del ejemplo)");
+
+						messageToUsers.setText(admin
+								+ ", indica el '@usuario' y los valores a añadir: cacasMes, cacaAño, cagonDelMes (seguir la estructura del ejemplo)");
 						executeMessage(messageToUsers);
-						
+
 					}
 
 				}
 
 			} else if (message.equals("/ver_usuarios_permitidos")) {
+				
+				List<String> listaRespuesta = new ArrayList<>();
 
-				messageToUsers.setText("Usuarios permitidos: " + listaUsuariosPermitidos.size());
-				executeMessage(messageToUsers);
+//				messageToUsers.setText("Usuarios permitidos: " + listaUsuariosPermitidos.size());
+//				executeMessage(messageToUsers);
+				
+				listaRespuesta.add("Usuarios permitidos: " + listaUsuariosPermitidos.size() + "\n");
+				
 				for (String user : listaUsuariosPermitidos) {
-					messageToUsers.setText(user);
-					executeMessage(messageToUsers);
+//					messageToUsers.setText(user);
+//					executeMessage(messageToUsers);
+					
+					listaRespuesta.add(user + "\n");
 				}
 
+				messageToUsers.setText(listaRespuesta.toString().replace("[", "").replace(",", "").replace("]", ""));
+				executeMessage(messageToUsers);
+				
 				messageToUsers.setText("¿Qué quieres hacer?" + "\n/habilitar_usuario" + "\n/agregar_cacas"
 						+ "\n/ver_usuarios_permitidos" + "\n/ver_estado_usuario" + "\n/exit");
 				executeMessage(messageToUsers);
@@ -231,19 +239,19 @@ public class TelegramBot extends TelegramLongPollingBot {
 					ver_estado_usuario = true;
 					messageToUsers.setText("Indica el '@usuario' para ver su estado");
 					executeMessage(messageToUsers);
-					
+
 				} else {
-					
-					if(isAdmin(userName)) {
-						
+
+					if (isAdmin(userName)) {
+
 						for (Cagon cagon : listaCagones.getListaCagones()) {
 
 							message = message.replace("@", "");
 
 							if (cagon.getName().equals(message.replace(" ", ""))) {
-								messageToUsers
-										.setText(cagon.getRealName() + ": [ Mes = " + cagon.getCacaMensual() + " , Año = "
-												+ cagon.getCacaAnual() + " , Cagones = " + cagon.getCagonDelMes() + " ] ");
+								messageToUsers.setText(cagon.getRealName() + ": [ Mes = " + cagon.getCacaMensual()
+										+ " , Año = " + cagon.getCacaAnual() + " , Cagones = " + cagon.getCagonDelMes()
+										+ " ] ");
 								executeMessage(messageToUsers);
 							}
 
@@ -254,18 +262,16 @@ public class TelegramBot extends TelegramLongPollingBot {
 						messageToUsers.setText("¿Qué quieres hacer?" + "\n/habilitar_usuario" + "\n/agregar_cacas"
 								+ "\n/ver_usuarios_permitidos" + "\n/ver_estado_usuario" + "\n/exit");
 						executeMessage(messageToUsers);
-						
+
 					} else {
-						
+
 						messageToUsers.setText("Deja administrar al usuario");
 						executeMessage(messageToUsers);
-						
+
 						messageToUsers.setText(admin + ", indica el '@usuario' para ver su estado");
 						executeMessage(messageToUsers);
-						
-					}
 
-					
+					}
 
 				}
 
@@ -319,14 +325,19 @@ public class TelegramBot extends TelegramLongPollingBot {
 						ListaDeCagones list = listaCagones;
 
 						Collections.sort(listaCagones.getListaCagones(), new MyComparatorMes());
-						
+
 						Collections.reverse(listaCagones.getListaCagones());
+						
+						List<String> listaRespuesta = new ArrayList<>();
+						
+//						messageToUsers.setText("📊 Lista mensual de cagones");
+//						executeMessage(messageToUsers);
 
-						messageToUsers.setText("📊 Lista mensual de cagones");
-						executeMessage(messageToUsers);
-
+						listaRespuesta.add("📊 Lista mensual de cagones\n\n");
+						
 						int pos = 0;
 						int numPrimero = 0;
+						
 						for (Cagon cagon : list.getListaCagones()) {
 
 							if (pos == 0) {
@@ -334,27 +345,39 @@ public class TelegramBot extends TelegramLongPollingBot {
 							}
 
 							if (cagon.getCacaMensual() == numPrimero) {
-								messageToUsers.setText(
-										posiciones[0] + " " + cagon.getRealName() + " ➡️ " + cagon.getCacaMensual());
-								executeMessage(messageToUsers);
+//								messageToUsers.setText(
+//										posiciones[0] + " " + cagon.getRealName() + " ➡️ " + cagon.getCacaMensual());
+//								executeMessage(messageToUsers);
+								
+								listaRespuesta.add(posiciones[0] + " " + cagon.getRealName() + " ➡️ " + cagon.getCacaMensual() + "\n");
+								
 							} else {
-								messageToUsers.setText(
-										posiciones[pos] + " " + cagon.getRealName() + " ➡️ " + cagon.getCacaMensual());
-								executeMessage(messageToUsers);
+//								messageToUsers.setText(
+//										posiciones[pos] + " " + cagon.getRealName() + " ➡️ " + cagon.getCacaMensual());
+//								executeMessage(messageToUsers);
+								
+								listaRespuesta.add(posiciones[pos] + " " + cagon.getRealName() + " ➡️ " + cagon.getCacaMensual() + "\n");
 							}
 							pos++;
 
 						}
+						
+						messageToUsers.setText(listaRespuesta.toString().replace("[", "").replace(",", "").replace("]", ""));
+						executeMessage(messageToUsers);
 
 					} else if (message.equals("/cacas_anuales")) {
 						ListaDeCagones list = listaCagones;
 
 						Collections.sort(listaCagones.getListaCagones(), new MyComparatorAnual());
-						
-						Collections.reverse(listaCagones.getListaCagones());
 
-						messageToUsers.setText("📊 Lista anual de cagones");
-						executeMessage(messageToUsers);
+						Collections.reverse(listaCagones.getListaCagones());
+						
+						List<String> listaRespuesta = new ArrayList<>();
+
+//						messageToUsers.setText("📊 Lista anual de cagones");
+//						executeMessage(messageToUsers);
+						
+						listaRespuesta.add("📊 Lista anual de cagones\n\n");
 
 						int pos = 0;
 						int numPrimero = 0;
@@ -365,16 +388,24 @@ public class TelegramBot extends TelegramLongPollingBot {
 							}
 
 							if (cagon.getCacaAnual() == numPrimero) {
-								messageToUsers.setText(
-										posiciones[0] + " " + cagon.getRealName() + " ➡️ " + cagon.getCacaAnual());
-								executeMessage(messageToUsers);
+//								messageToUsers.setText(
+//										posiciones[0] + " " + cagon.getRealName() + " ➡️ " + cagon.getCacaAnual());
+//								executeMessage(messageToUsers);
+								
+								listaRespuesta.add(posiciones[0] + " " + cagon.getRealName() + " ➡️ " + cagon.getCacaAnual() + "\n");
 							} else {
-								messageToUsers.setText(
-										posiciones[pos] + " " + cagon.getRealName() + " ➡️ " + cagon.getCacaAnual());
-								executeMessage(messageToUsers);
+//								messageToUsers.setText(
+//										posiciones[pos] + " " + cagon.getRealName() + " ➡️ " + cagon.getCacaAnual());
+//								executeMessage(messageToUsers);
+								
+								listaRespuesta.add(posiciones[pos] + " " + cagon.getRealName() + " ➡️ " + cagon.getCacaAnual() + "\n");
 							}
 							pos++;
 						}
+						
+						messageToUsers.setText(listaRespuesta.toString().replace("[", "").replace(",", "").replace("]", ""));
+						executeMessage(messageToUsers);
+						
 					} else if (message.equals("/help")) {
 
 						messageToUsers.setText(
@@ -410,19 +441,25 @@ public class TelegramBot extends TelegramLongPollingBot {
 				}
 
 			} else {
+				
+				List<String> listaRespuesta = new ArrayList<>();
 
-				messageToUsers.setText(
-						"Para para, no vayas tan rápido. Antes de seguir contando cacas y acabar de mierda hasta arriba, vamos a ver como quedó el mes pasado");
-				executeMessage(messageToUsers);
+//				messageToUsers.setText(
+//						"Para para, no vayas tan rápido. Antes de seguir contando cacas y acabar de mierda hasta arriba, vamos a ver como quedó el mes pasado");
+//				executeMessage(messageToUsers);
+				
+				listaRespuesta.add("Para para, no vayas tan rápido. Antes de seguir contando cacas y acabar de mierda hasta arriba, vamos a ver como quedó el mes pasado\n\n");
 
 				ListaDeCagones list = listaCagones;
 
 				Collections.sort(listaCagones.getListaCagones(), new MyComparatorMes());
-				
+
 				Collections.reverse(listaCagones.getListaCagones());
 
-				messageToUsers.setText("📊 Lista de cagones de " + meses[mesActual]);
-				executeMessage(messageToUsers);
+//				messageToUsers.setText("📊 Lista de cagones de " + meses[mesActual]);
+//				executeMessage(messageToUsers);
+				
+				listaRespuesta.add("📊 Lista de cagones de " + meses[mesActual] + "\n\n");
 
 				int pos = 0;
 				int numPrimero = 0;
@@ -435,16 +472,21 @@ public class TelegramBot extends TelegramLongPollingBot {
 					}
 
 					if (numPrimero == cagon.getCacaMensual()) {
-						messageToUsers
-								.setText(posiciones[0] + " " + cagon.getRealName() + " ➡️ " + cagon.getCacaMensual());
-						executeMessage(messageToUsers);
+//						messageToUsers
+//								.setText(posiciones[0] + " " + cagon.getRealName() + " ➡️ " + cagon.getCacaMensual());
+//						executeMessage(messageToUsers);
+						
+						listaRespuesta.add(posiciones[0] + " " + cagon.getRealName() + " ➡️ " + cagon.getCacaMensual() + "\n");
+						
 						cagonDelMes.add(cagon.getRealName());
 						cagon.setCagonDelMes(cagon.getCagonDelMes() + 1);
 
 					} else {
-						messageToUsers
-								.setText(posiciones[pos] + " " + cagon.getRealName() + " ➡️ " + cagon.getCacaMensual());
-						executeMessage(messageToUsers);
+//						messageToUsers
+//								.setText(posiciones[pos] + " " + cagon.getRealName() + " ➡️ " + cagon.getCacaMensual());
+//						executeMessage(messageToUsers);
+						
+						listaRespuesta.add(posiciones[pos] + " " + cagon.getRealName() + " ➡️ " + cagon.getCacaMensual() + "\n");
 
 					}
 
@@ -453,10 +495,25 @@ public class TelegramBot extends TelegramLongPollingBot {
 					pos++;
 				}
 
+				listaRespuesta.add("\n");
+				
 				for (String usuarioCagon : cagonDelMes) {
-					messageToUsers.setText("🏅 Felicidades " + usuarioCagon + ", eres el cagón del mes!");
-					executeMessage(messageToUsers);
+//					messageToUsers.setText("🏅 Felicidades " + usuarioCagon + ", eres el cagón del mes!");
+//					executeMessage(messageToUsers);
+					
+					listaRespuesta.add("🏅 Felicidades " + usuarioCagon + ", eres el cagón del mes!\n");
 				}
+
+//				messageToUsers
+//						.setText("🆘 Cuidado " + list.getListaCagones().get(list.getListaCagones().size()-1).getRealName()
+//								+ ", hay que vigilar ese tránsito; cómete un par de kiwis anda");
+//				executeMessage(messageToUsers);
+				
+				listaRespuesta.add("🆘 Cuidado " + list.getListaCagones().get(list.getListaCagones().size()-1).getRealName()
+						+ ". Hay que vigilar ese tránsito; cómete un par de kiwis anda\n");
+				
+				messageToUsers.setText(listaRespuesta.toString().replace("[", "").replace(",", "").replace("]", ""));
+				executeMessage(messageToUsers);
 
 				if (message.contains("💩")) {
 
@@ -467,19 +524,25 @@ public class TelegramBot extends TelegramLongPollingBot {
 				mesActual = mesDelMensaje;
 
 				if (anoActual != anoDelMensaje) {
+					
+					List<String> listaRespuesta1 = new ArrayList<>();
 
-					messageToUsers.setText(
-							"Un año viene y otro se va, por lo que debemos hacer recuento de este úlitmo año lleno de alegrias y mierda, sobretodo lo segundo 😉");
-					executeMessage(messageToUsers);
+//					messageToUsers.setText(
+//							"Un año viene y otro se va, por lo que debemos hacer recuento de este úlitmo año lleno de alegrias y mierda, sobretodo lo segundo 😉");
+//					executeMessage(messageToUsers);
+					
+					listaRespuesta1.add("Un año viene y otro se va, por lo que debemos hacer recuento de este úlitmo año lleno de alegrias y mierda; sobretodo lo segundo 😉\n\n");
 
 					ListaDeCagones listAno = listaCagones;
 
 					Collections.sort(listaCagones.getListaCagones(), new MyComparatorAnual());
-					
+
 					Collections.reverse(listaCagones.getListaCagones());
 
-					messageToUsers.setText("📊 Lista de cagones del año " + anoActual);
-					executeMessage(messageToUsers);
+//					messageToUsers.setText("📊 Lista de cagones del año " + anoActual);
+//					executeMessage(messageToUsers);
+					
+					listaRespuesta1.add("📊 Lista de cagones del año " + anoActual + "\n");
 
 					int posAno = 0;
 					int numPrimeroAno = 0;
@@ -492,16 +555,20 @@ public class TelegramBot extends TelegramLongPollingBot {
 						}
 
 						if (numPrimeroAno == cagon.getCacaAnual()) {
-							messageToUsers
-									.setText(posiciones[0] + " " + cagon.getRealName() + " ➡️ " + cagon.getCacaAnual());
-							executeMessage(messageToUsers);
+//							messageToUsers
+//									.setText(posiciones[0] + " " + cagon.getRealName() + " ➡️ " + cagon.getCacaAnual());
+//							executeMessage(messageToUsers);
+						
+							listaRespuesta1.add(posiciones[0] + " " + cagon.getRealName() + " ➡️ " + cagon.getCacaAnual() + "\n");
+							
 							cagonDelAno.add(cagon.getRealName());
 
 						} else {
-							messageToUsers.setText(
-									posiciones[posAno] + " " + cagon.getRealName() + " ➡️ " + cagon.getCacaAnual());
-							executeMessage(messageToUsers);
-
+//							messageToUsers.setText(
+//									posiciones[posAno] + " " + cagon.getRealName() + " ➡️ " + cagon.getCacaAnual());
+//							executeMessage(messageToUsers);
+							
+							listaRespuesta1.add(posiciones[posAno] + " " + cagon.getRealName() + " ➡️ " + cagon.getCacaAnual() + "\n");
 						}
 
 						cagon.setCagonDelMes(0);
@@ -511,12 +578,18 @@ public class TelegramBot extends TelegramLongPollingBot {
 						posAno++;
 					}
 
+					listaRespuesta1.add("\n");
 					for (String usuarioCagon1 : cagonDelAno) {
-						messageToUsers.setText("🏆 Premio al cagón del año para  " + usuarioCagon1
-								+ ". Tu no eres 70% agua, tu eres 70% mierda 💩💩💩");
-						executeMessage(messageToUsers);
+//						messageToUsers.setText("🏆 Premio al cagón del año para  " + usuarioCagon1
+//								+ ". Tu no eres 70% agua, tu eres 70% mierda 💩💩💩");
+//						executeMessage(messageToUsers);
+						
+						listaRespuesta1.add("🏆 Premio al cagón del año para  " + usuarioCagon1
+								+ ". Tu no eres 70% agua, tu eres 70% mierda 💩💩💩\n");
 					}
 
+					messageToUsers.setText(listaRespuesta1.toString().replace("[", "").replace(",", "").replace("]", ""));
+					executeMessage(messageToUsers);
 					anoActual = anoDelMensaje;
 				}
 			}
@@ -573,23 +646,23 @@ public class TelegramBot extends TelegramLongPollingBot {
 
 					botStarted = true;
 					listaCagones = new ListaDeCagones();
-					
-					Cagon c1 = new Cagon();
-					c1.setName("BBBB");
-					c1.setRealName("BBBB");
-					c1.setCacaMensual(3);
-					c1.setCacaAnual(2);
-					c1.setCagonDelMes(9);
-					
-					Cagon c2 = new Cagon();
-					c2.setName("AAAA");
-					c2.setRealName("AAAA");
-					c2.setCacaMensual(5);
-					c2.setCacaAnual(6);
-					c2.setCagonDelMes(0);
-					
-					listaCagones.setListaCagones(c1);
-					listaCagones.setListaCagones(c2);
+
+//					Cagon c1 = new Cagon();
+//					c1.setName("BBBB");
+//					c1.setRealName("BBBB");
+//					c1.setCacaMensual(3);
+//					c1.setCacaAnual(2);
+//					c1.setCagonDelMes(9);
+//
+//					Cagon c2 = new Cagon();
+//					c2.setName("AAAA");
+//					c2.setRealName("AAAA");
+//					c2.setCacaMensual(5);
+//					c2.setCacaAnual(6);
+//					c2.setCagonDelMes(0);
+//
+//					listaCagones.setListaCagones(c1);
+//					listaCagones.setListaCagones(c2);
 
 				} else {
 					messageToUsers.setText("Ya me encuentro contanto vuestras caquitas 😉");
@@ -659,13 +732,11 @@ public class TelegramBot extends TelegramLongPollingBot {
 
 	@Override
 	public String getBotUsername() {
-		// TODO Auto-generated method stub
 		return "MicaCadura_bot";
 	}
 
 	@Override
 	public String getBotToken() {
-		// TODO Auto-generated method stub
 		return token;
 	}
 
