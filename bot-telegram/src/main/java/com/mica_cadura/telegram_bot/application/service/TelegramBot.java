@@ -86,13 +86,8 @@ public class TelegramBot extends TelegramLongPollingBot {
 		int anoDelMensaje = calendar2.get(Calendar.YEAR);
 
 		int horaDelMensaje = calendar2.get(Calendar.HOUR_OF_DAY);
-<<<<<<< HEAD
 		int randomNum = (int) (Math.random() * randomValue);
 
-=======
-		int randomNum = (int)(Math.random()*30);
-		
->>>>>>> 3dbe14b5cba1af7f6abcec5d66fda21c0fec1014
 //		System.out.println("Hora " + horaDelMensaje);
 //		System.out.println("Random " + randomNum);
 		// System.out.println("Mes de partida: " + mesActual);
@@ -102,10 +97,11 @@ public class TelegramBot extends TelegramLongPollingBot {
 //			mesDelMensaje = calendar2.get(Calendar.MONTH);
 //			anoDelMensaje = calendar2.get(Calendar.YEAR);
 //		} else {
-//			mesDelMensaje = 1;
+//			mesDelMensaje = 2;
 //			anoDelMensaje = 2024;
 //		}
 		// System.out.println("Mes del mensaje: " + mesDelMensaje);
+		
 
 		String message = update.getMessage().getText();
 
@@ -322,6 +318,8 @@ public class TelegramBot extends TelegramLongPollingBot {
 						ListaDeCagones list = listaCagones;
 
 						Collections.sort(listaCagones.getListaCagones(), new MyComparatorMes());
+						
+						Collections.reverse(listaCagones.getListaCagones());
 
 						messageToUsers.setText("📊 Lista mensual de cagones");
 						executeMessage(messageToUsers);
@@ -351,6 +349,8 @@ public class TelegramBot extends TelegramLongPollingBot {
 						ListaDeCagones list = listaCagones;
 
 						Collections.sort(listaCagones.getListaCagones(), new MyComparatorAnual());
+						
+						Collections.reverse(listaCagones.getListaCagones());
 
 						messageToUsers.setText("📊 Lista anual de cagones");
 						executeMessage(messageToUsers);
@@ -417,6 +417,8 @@ public class TelegramBot extends TelegramLongPollingBot {
 				ListaDeCagones list = listaCagones;
 
 				Collections.sort(listaCagones.getListaCagones(), new MyComparatorMes());
+				
+				Collections.reverse(listaCagones.getListaCagones());
 
 				messageToUsers.setText("📊 Lista de cagones de " + meses[mesActual]);
 				executeMessage(messageToUsers);
@@ -472,6 +474,8 @@ public class TelegramBot extends TelegramLongPollingBot {
 					ListaDeCagones listAno = listaCagones;
 
 					Collections.sort(listaCagones.getListaCagones(), new MyComparatorAnual());
+					
+					Collections.reverse(listaCagones.getListaCagones());
 
 					messageToUsers.setText("📊 Lista de cagones del año " + anoActual);
 					executeMessage(messageToUsers);
@@ -566,13 +570,25 @@ public class TelegramBot extends TelegramLongPollingBot {
 									+ "\n/reset para resetearme");
 					executeMessage(messageToUsers);
 
-					// /start para inicar el bot
-					// /reset para reinicar el bot
-					// /cacas_mensuales para mostrar las cacas del mes
-					// /cacas_anuales para mostrar las cacas de año
-
 					botStarted = true;
 					listaCagones = new ListaDeCagones();
+					
+					Cagon c1 = new Cagon();
+					c1.setName("BBBB");
+					c1.setRealName("BBBB");
+					c1.setCacaMensual(3);
+					c1.setCacaAnual(2);
+					c1.setCagonDelMes(9);
+					
+					Cagon c2 = new Cagon();
+					c2.setName("AAAA");
+					c2.setRealName("AAAA");
+					c2.setCacaMensual(5);
+					c2.setCacaAnual(6);
+					c2.setCagonDelMes(0);
+					
+					listaCagones.setListaCagones(c1);
+					listaCagones.setListaCagones(c2);
 
 				} else {
 					messageToUsers.setText("Ya me encuentro contanto vuestras caquitas 😉");
