@@ -58,6 +58,19 @@
 					<target>7</target>
 				</configuration>
 			</plugin>
+			<plugin>
+               <groupId>org.apache.maven.plugins</groupId> 
+               <artifactId>maven-jar-plugin</artifactId>
+               
+               <configuration>
+                   <archive>
+                       <index>true</index>
+                       <manifest>
+                           <mainClass>com.mica_cadura.telegram_bot.application.TelegramBotApp</mainClass>
+                       </manifest> 
+                   </archive>
+               </configuration>
+           </plugin>
 		</plugins>
 	</build>
 </project>
