@@ -633,7 +633,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
 				if (!botStarted) {
 					messageToUsers.setText(
-							"Hola grupo, no soy Vanesa pero me llamo Mica y estoy aqui para regular vuEstro tránsito intestinal; vamos, para contar cuantas veces cagais."
+							"Hola grupo, no soy Vanesa pero me llamo Mica y estoy aqui para regular vuestro tránsito intestinal; vamos, para contar cuantas veces cagais."
 									+ "\nDe ahora en adelante, cada vez de defequeis, teneis que poner el emoji de la caca 💩 y yo me lo apuntare en mi lista particular."
 									+ "\n\nUsad los siguientes comandos para interactuar conmigo:"
 									+ "\n/start para iniciarme"
