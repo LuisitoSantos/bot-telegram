@@ -86,6 +86,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 		int anoDelMensaje = calendar2.get(Calendar.YEAR);
 
 		int horaDelMensaje = calendar2.get(Calendar.HOUR_OF_DAY);
+
 		int randomNum = (int) (Math.random() * randomValue);
 
 //		System.out.println("Hora " + horaDelMensaje);
