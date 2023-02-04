@@ -1,0 +1,17 @@
+{"properties": [
+  {
+    "name": "random_num",
+    "type": "java.lang.String",
+    "description": "A description for 'random_num'"
+  },
+  {
+    "name": "token",
+    "type": "java.lang.String",
+    "description": "A description for 'token'"
+  },
+  {
+    "name": "admin_user",
+    "type": "java.lang.String",
+    "description": "A description for 'admin_user'"
+  }
+]}

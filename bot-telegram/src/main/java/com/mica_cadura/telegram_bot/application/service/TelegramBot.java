@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -17,6 +18,15 @@ import com.mica_cadura.telegram_bot.application.dto.MyComparatorMes;
 
 @Service
 public class TelegramBot extends TelegramLongPollingBot {
+
+	@Value("${token}")
+	private String token;
+
+	@Value("${random_num}")
+	private int randomValue;
+
+	@Value("${admin_user}")
+	private String admin;
 
 	private Boolean botStarted = false;
 
@@ -31,13 +41,13 @@ public class TelegramBot extends TelegramLongPollingBot {
 	private Boolean ver_estado_usuario = false;
 
 	private ListaDeCagones listaCagones = new ListaDeCagones();
-	
+
 	private List<String> respuestasNormales = new ArrayList<>();
-	
+
 	private List<String> respuestasNocturnas = new ArrayList<>();
-	
+
 	private List<String> respuestasTempranas = new ArrayList<>();
-	
+
 	private List<String> respuestasMediodia = new ArrayList<>();
 
 	private List<String> listaUsuariosPermitidos = new ArrayList<>();
@@ -55,20 +65,20 @@ public class TelegramBot extends TelegramLongPollingBot {
 	private int anoActual = calendar1.get(Calendar.YEAR);
 
 	int contAux = -1;
-	
+
 	private boolean firstMessage = true;
 
 	@Override
 	public void onUpdateReceived(Update update) {
-		
-		if(firstMessage) {
+
+		if (firstMessage) {
 			añadirRespuestasNormales();
 			añadirRespuestasNocturnas();
 			añadirRespuestasTempranas();
 			añadirRespuestasDeMediodia();
-			firstMessage=false;
+			firstMessage = false;
 		}
-		
+
 		contAux++;
 
 		Calendar calendar2 = Calendar.getInstance();
@@ -76,8 +86,8 @@ public class TelegramBot extends TelegramLongPollingBot {
 		int anoDelMensaje = calendar2.get(Calendar.YEAR);
 
 		int horaDelMensaje = calendar2.get(Calendar.HOUR_OF_DAY);
-		int randomNum = (int)(Math.random()*20);
-		
+		int randomNum = (int) (Math.random() * randomValue);
+
 //		System.out.println("Hora " + horaDelMensaje);
 //		System.out.println("Random " + randomNum);
 		// System.out.println("Mes de partida: " + mesActual);
@@ -119,32 +129,55 @@ public class TelegramBot extends TelegramLongPollingBot {
 
 				} else {
 
-					boolean match = false;
+					if (isAdmin(userName)) {
+						
+						if(message.startsWith("@")) {
+							
+							boolean match = false;
 
-					for (String user : listaUsuariosPermitidos) {
+							for (String user : listaUsuariosPermitidos) {
 
-						if (user.equals(message)) {
-							messageToUsers.setText("Usuario ya habilitado");
+								if (user.equals(message)) {
+									messageToUsers.setText("Usuario ya habilitado");
+									executeMessage(messageToUsers);
+									match = true;
+									break;
+								}
+							}
+
+							if (!match) {
+								listaUsuariosPermitidos.add(message.replace(" ", ""));
+								messageToUsers.setText("Usuario " + message + " habilitado correctamente");
+								executeMessage(messageToUsers);
+							}
+
+							habilitarUser = false;
+
+							messageToUsers.setText("¿Qué quieres hacer?" + "\n/habilitar_usuario" + "\n/agregar_cacas"
+									+ "\n/ver_usuarios_permitidos" + "\n/ver_estado_usuario" + "\n/exit");
 							executeMessage(messageToUsers);
-							match = true;
-							break;
+							
+						} else {
+							
+							messageToUsers.setText(message + " no es un usuario");
+							executeMessage(messageToUsers);
+							
+							messageToUsers.setText(admin + ", indica el '@usuario' para habilitarlo");
+							executeMessage(messageToUsers);
+							
 						}
-					}
 
-					if (!match) {
-						listaUsuariosPermitidos.add(message.replace(" ", ""));
-						messageToUsers.setText("Usuario " + message + " habilitado correctamente");
+					} else {
+						
+						messageToUsers.setText("Deja administrar al usuario");
 						executeMessage(messageToUsers);
+						
+						messageToUsers.setText(admin + ", indica el '@usuario' para habilitarlo");
+						executeMessage(messageToUsers);
+						
 					}
-
-					habilitarUser = false;
-
-					messageToUsers.setText("¿Qué quieres hacer?" + "\n/habilitar_usuario" + "\n/agregar_cacas"
-							+ "\n/ver_usuarios_permitidos" + "\n/ver_estado_usuario" + "\n/exit");
-					executeMessage(messageToUsers);
 
 				}
-
 			} else if (message.equals("/agregar_cacas") || anadirCacas) {
 
 				if (!anadirCacas) {
@@ -154,12 +187,27 @@ public class TelegramBot extends TelegramLongPollingBot {
 					executeMessage(messageToUsers);
 					messageToUsers.setText("Ejemplo: @User 1 3 0");
 					executeMessage(messageToUsers);
+					
 				} else {
-					anadirCacas = false;
-					processMessage(message, id);
-					messageToUsers.setText("¿Qué quieres hacer?" + "\n/habilitar_usuario" + "\n/agregar_cacas"
-							+ "\n/ver_usuarios_permitidos" + "\n/ver_estado_usuario" + "\n/exit");
-					executeMessage(messageToUsers);
+					
+					if(isAdmin(userName)) {
+						
+						anadirCacas = false;
+						processMessage(message, id);
+						messageToUsers.setText("¿Qué quieres hacer?" + "\n/habilitar_usuario" + "\n/agregar_cacas"
+								+ "\n/ver_usuarios_permitidos" + "\n/ver_estado_usuario" + "\n/exit");
+						executeMessage(messageToUsers);
+						
+					} else {
+						
+						messageToUsers.setText("Deja administrar al usuario");
+						executeMessage(messageToUsers);
+						
+						messageToUsers.setText(admin + ", indica el '@usuario' y los valores a añadir: cacasMes, cacaAño, cagonDelMes (seguir la estructura del ejemplo)");
+						executeMessage(messageToUsers);
+						
+					}
+
 				}
 
 			} else if (message.equals("/ver_usuarios_permitidos")) {
@@ -179,28 +227,43 @@ public class TelegramBot extends TelegramLongPollingBot {
 
 				if (!ver_estado_usuario) {
 					ver_estado_usuario = true;
-					messageToUsers.setText("Indica el '@usuario' para habilitarlo");
+					messageToUsers.setText("Indica el '@usuario' para ver su estado");
 					executeMessage(messageToUsers);
+					
 				} else {
+					
+					if(isAdmin(userName)) {
+						
+						for (Cagon cagon : listaCagones.getListaCagones()) {
 
-					for (Cagon cagon : listaCagones.getListaCagones()) {
+							message = message.replace("@", "");
 
-						message = message.replace("@", "");
+							if (cagon.getName().equals(message.replace(" ", ""))) {
+								messageToUsers
+										.setText(cagon.getRealName() + ": [ Mes = " + cagon.getCacaMensual() + " , Año = "
+												+ cagon.getCacaAnual() + " , Cagones = " + cagon.getCagonDelMes() + " ] ");
+								executeMessage(messageToUsers);
+							}
 
-						if (cagon.getName().equals(message.replace(" ", ""))) {
-							messageToUsers
-									.setText(cagon.getRealName() + ": [ Mes = " + cagon.getCacaMensual() + " , Año = "
-											+ cagon.getCacaAnual() + " , Cagones = " + cagon.getCagonDelMes() + " ] ");
-							executeMessage(messageToUsers);
 						}
 
+						ver_estado_usuario = false;
+
+						messageToUsers.setText("¿Qué quieres hacer?" + "\n/habilitar_usuario" + "\n/agregar_cacas"
+								+ "\n/ver_usuarios_permitidos" + "\n/ver_estado_usuario" + "\n/exit");
+						executeMessage(messageToUsers);
+						
+					} else {
+						
+						messageToUsers.setText("Deja administrar al usuario");
+						executeMessage(messageToUsers);
+						
+						messageToUsers.setText(admin + ", indica el '@usuario' para ver su estado");
+						executeMessage(messageToUsers);
+						
 					}
 
-					ver_estado_usuario = false;
-
-					messageToUsers.setText("¿Qué quieres hacer?" + "\n/habilitar_usuario" + "\n/agregar_cacas"
-							+ "\n/ver_usuarios_permitidos" + "\n/ver_estado_usuario" + "\n/exit");
-					executeMessage(messageToUsers);
+					
 
 				}
 
@@ -248,7 +311,6 @@ public class TelegramBot extends TelegramLongPollingBot {
 					if (message.contains("💩")) {
 
 						comprobarUsuario(userName, userRealName, id, randomNum, horaDelMensaje);
-						
 
 					} else if (message.equals("/cacas_mensuales")) {
 
@@ -262,8 +324,8 @@ public class TelegramBot extends TelegramLongPollingBot {
 						int pos = 0;
 						int numPrimero = 0;
 						for (Cagon cagon : list.getListaCagones()) {
-							
-							if(pos==0) {
+
+							if (pos == 0) {
 								numPrimero = list.getListaCagones().get(0).getCacaMensual();
 							}
 
@@ -291,8 +353,8 @@ public class TelegramBot extends TelegramLongPollingBot {
 						int pos = 0;
 						int numPrimero = 0;
 						for (Cagon cagon : list.getListaCagones()) {
-							
-							if(pos==0) {
+
+							if (pos == 0) {
 								numPrimero = list.getListaCagones().get(0).getCacaAnual();
 							}
 
@@ -320,7 +382,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
 					} else if (message.equals("/administrar")) {
 
-						if (userName.equals("luisSantos88")) {
+						if (userName.equals(admin)) {
 							administrar = true;
 
 							messageToUsers.setText("¿Qué quieres hacer?" + "\n/habilitar_usuario" + "\n/agregar_cacas"
@@ -357,10 +419,10 @@ public class TelegramBot extends TelegramLongPollingBot {
 				int pos = 0;
 				int numPrimero = 0;
 				List<String> cagonDelMes = new ArrayList<>();
-				
+
 				for (Cagon cagon : list.getListaCagones()) {
-					
-					if(pos==0) {
+
+					if (pos == 0) {
 						numPrimero = list.getListaCagones().get(0).getCacaMensual();
 					}
 
@@ -375,7 +437,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 						messageToUsers
 								.setText(posiciones[pos] + " " + cagon.getRealName() + " ➡️ " + cagon.getCacaMensual());
 						executeMessage(messageToUsers);
-						
+
 					}
 
 					cagon.setCacaMensual(0);
@@ -383,11 +445,11 @@ public class TelegramBot extends TelegramLongPollingBot {
 					pos++;
 				}
 
-				for(String usuarioCagon : cagonDelMes) {
+				for (String usuarioCagon : cagonDelMes) {
 					messageToUsers.setText("🏅 Felicidades " + usuarioCagon + ", eres el cagón del mes!");
 					executeMessage(messageToUsers);
 				}
-				
+
 				if (message.contains("💩")) {
 
 					comprobarUsuario(userName, userRealName, id, randomNum, horaDelMensaje);
@@ -395,10 +457,9 @@ public class TelegramBot extends TelegramLongPollingBot {
 				}
 
 				mesActual = mesDelMensaje;
-				
-				
-				if(anoActual != anoDelMensaje) {
-					
+
+				if (anoActual != anoDelMensaje) {
+
 					messageToUsers.setText(
 							"Un año viene y otro se va, por lo que debemos hacer recuento de este úlitmo año lleno de alegrias y mierda, sobretodo lo segundo 😉");
 					executeMessage(messageToUsers);
@@ -413,10 +474,10 @@ public class TelegramBot extends TelegramLongPollingBot {
 					int posAno = 0;
 					int numPrimeroAno = 0;
 					List<String> cagonDelAno = new ArrayList<>();
-					
+
 					for (Cagon cagon : listAno.getListaCagones()) {
-						
-						if(posAno==0) {
+
+						if (posAno == 0) {
 							numPrimeroAno = listAno.getListaCagones().get(0).getCacaAnual();
 						}
 
@@ -424,15 +485,15 @@ public class TelegramBot extends TelegramLongPollingBot {
 							messageToUsers
 									.setText(posiciones[0] + " " + cagon.getRealName() + " ➡️ " + cagon.getCacaAnual());
 							executeMessage(messageToUsers);
-							cagonDelAno.add(cagon.getRealName());							
+							cagonDelAno.add(cagon.getRealName());
 
 						} else {
-							messageToUsers
-									.setText(posiciones[posAno] + " " + cagon.getRealName() + " ➡️ " + cagon.getCacaAnual());
+							messageToUsers.setText(
+									posiciones[posAno] + " " + cagon.getRealName() + " ➡️ " + cagon.getCacaAnual());
 							executeMessage(messageToUsers);
-							
+
 						}
-						
+
 						cagon.setCagonDelMes(0);
 						cagon.setCacaAnual(0);
 						cagon.setCacaMensual(0);
@@ -440,11 +501,12 @@ public class TelegramBot extends TelegramLongPollingBot {
 						posAno++;
 					}
 
-					for(String usuarioCagon1 : cagonDelAno) {
-						messageToUsers.setText("🏆 Premio al cagón del año para  " + usuarioCagon1 + ". Tu no eres 70% agua, tu eres 70% mierda 💩💩💩");
+					for (String usuarioCagon1 : cagonDelAno) {
+						messageToUsers.setText("🏆 Premio al cagón del año para  " + usuarioCagon1
+								+ ". Tu no eres 70% agua, tu eres 70% mierda 💩💩💩");
 						executeMessage(messageToUsers);
 					}
-					
+
 					anoActual = anoDelMensaje;
 				}
 			}
@@ -455,12 +517,12 @@ public class TelegramBot extends TelegramLongPollingBot {
 
 				if (message.toUpperCase().equals("Y") || message.toUpperCase().equals("YES")) {
 
-					if (userName.equals("luisSantos88")) {
+					if (userName.equals(admin)) {
 						messageToUsers.setText("Me he cansado de vuestras mierdas, empezaré de nuevo");
 						executeMessage(messageToUsers);
 
 						listaCagones = new ListaDeCagones();
-												
+
 						botStarted = false;
 						reset = false;
 					} else {
@@ -536,7 +598,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
 			} else if (message.equals("/administrar")) {
 
-				if (userName.equals("luisSantos88")) {
+				if (userName.equals(admin)) {
 					administrar = true;
 
 					messageToUsers.setText("¿Qué quieres hacer?" + "\n/habilitar_usuario" + "\n/agregar_cacas"
@@ -582,7 +644,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 	@Override
 	public String getBotToken() {
 		// TODO Auto-generated method stub
-		return "5937151944:AAHYVRofsM5keAq_lfdDpqt4IZNLyAAn9kE";
+		return token;
 	}
 
 	public void executeMessage(SendMessage message) {
@@ -635,24 +697,23 @@ public class TelegramBot extends TelegramLongPollingBot {
 
 				listaCagones.setListaCagones(cagon);
 			}
-			
-			
-			if(randomNum<=9) {
-				if(horaDelMensaje>=1 && horaDelMensaje<6) {
+
+			if (randomNum <= 9) {
+				if (horaDelMensaje >= 1 && horaDelMensaje < 6) {
 					messageToUsers.setText(respuestasNocturnas.get(randomNum));
 					executeMessage(messageToUsers);
-				} else if(horaDelMensaje>=6 && horaDelMensaje<13){
+				} else if (horaDelMensaje >= 6 && horaDelMensaje < 13) {
 					messageToUsers.setText(respuestasTempranas.get(randomNum));
 					executeMessage(messageToUsers);
-				} else if(horaDelMensaje>=13 && horaDelMensaje<16) {
+				} else if (horaDelMensaje >= 13 && horaDelMensaje < 16) {
 					messageToUsers.setText(respuestasMediodia.get(randomNum));
-					executeMessage(messageToUsers);								
+					executeMessage(messageToUsers);
 				} else {
 					messageToUsers.setText(respuestasNormales.get(randomNum));
 					executeMessage(messageToUsers);
 				}
 			}
-			
+
 		} else {
 			messageToUsers.setText("Usuario no permitido");
 			executeMessage(messageToUsers);
@@ -728,7 +789,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 		respuestasNormales.add("Te acabas de quitar un peso de encima");
 		respuestasNormales.add("Mejor fuera que dentro");
 	}
-	
+
 	public void añadirRespuestasNocturnas() {
 		respuestasNocturnas.add("Venga, y ahora a dormir eh, que no te vuelva a ver despierto");
 		respuestasNocturnas.add("Te ha pillado a contrapié");
@@ -739,9 +800,10 @@ public class TelegramBot extends TelegramLongPollingBot {
 		respuestasNocturnas.add("Shhhhhh, que el resto queremos dormir");
 		respuestasNocturnas.add("Seguro que el mojon se acaba de ir a dormir");
 		respuestasNocturnas.add("Ya no sabias ni como soltarlo jajaja");
-		respuestasNocturnas.add("Espero que te haya pillado en tu casa, porque si no la gente tiene que estar flipando");
+		respuestasNocturnas
+				.add("Espero que te haya pillado en tu casa, porque si no la gente tiene que estar flipando");
 	}
-	
+
 	public void añadirRespuestasTempranas() {
 		respuestasTempranas.add("¡Corre que no llegas!");
 		respuestasTempranas.add("Sale antes que los que ponen las calles");
@@ -754,7 +816,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 		respuestasTempranas.add("¡Mucha mierda!");
 		respuestasTempranas.add("Has hecho bien, vas a afrontar el día mucho más liger@");
 	}
-	
+
 	public void añadirRespuestasDeMediodia() {
 		respuestasMediodia.add("Cafe y cigarro, muñeco de barro");
 		respuestasMediodia.add("La de después de comer (o la de antes, no sabemos)");
@@ -767,5 +829,15 @@ public class TelegramBot extends TelegramLongPollingBot {
 		respuestasMediodia.add("La cagada más importante del día");
 		respuestasMediodia.add("Acabas de recolocar todos tus chakras");
 	}
-	
+
+	public boolean isAdmin(String user) {
+
+		boolean is = false;
+
+		if (user.equals(admin)) {
+			is = true;
+		}
+
+		return is;
+	}
 }
