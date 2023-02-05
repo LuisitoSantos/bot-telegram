@@ -795,7 +795,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 				if (horaDelMensaje >= 1 && horaDelMensaje < 6) {
 					messageToUsers.setText(respuestasNocturnas.get(randomNum));
 					executeMessage(messageToUsers);
-				} else if (horaDelMensaje >= 6 && horaDelMensaje < 13) {
+				} else if (horaDelMensaje >= 6 && horaDelMensaje < 8) {
 					messageToUsers.setText(respuestasTempranas.get(randomNum));
 					executeMessage(messageToUsers);
 				} else if (horaDelMensaje >= 13 && horaDelMensaje < 16) {
